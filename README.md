@@ -1,6 +1,8 @@
 # FaceDetect
 
-## Google ML Kit Face Detection Demo
+<img src="app/src/main/res/mipmap-xxhdpi/ic_launcher.webp" align="right" />
+
+Google ML Kit Face Detection Demo
 
 - MVP architecture
 - [ML Kit][1] face detection library by Google
