@@ -1,10 +1,10 @@
 package org.sirekanyan.facedetection
 
 import android.view.View
-import android.widget.Toast
 import androidx.annotation.StringRes
 import org.sirekanyan.facedetection.databinding.MainActivityBinding
 import org.sirekanyan.facedetection.extensions.context
+import org.sirekanyan.facedetection.extensions.showToast
 import org.sirekanyan.facedetection.mvp.MvpView
 
 interface MainView : MvpView<MainActivityBinding> {
@@ -31,7 +31,7 @@ class MainViewImpl(
     }
 
     override fun showError(@StringRes message: Int) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        context.showToast(message)
     }
 
     override fun showToggleButton() {

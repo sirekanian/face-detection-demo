@@ -1,5 +1,7 @@
 package org.sirekanyan.facedetection
 
+import android.Manifest
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
@@ -11,6 +13,7 @@ import androidx.camera.mlkit.vision.MlKitAnalyzer
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -18,6 +21,8 @@ import com.google.mlkit.vision.face.FaceDetection
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import org.sirekanyan.facedetection.databinding.MainActivityBinding
+import org.sirekanyan.facedetection.extensions.openAppSettings
+import org.sirekanyan.facedetection.extensions.showToast
 import org.sirekanyan.facedetection.extensions.toCameraSelector
 import org.sirekanyan.facedetection.extensions.toCameraType
 import org.sirekanyan.facedetection.model.CameraType
@@ -33,6 +38,13 @@ class MainActivity : AppCompatActivity(), MainPresenter.Router {
         super.onCreate(savedInstanceState)
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        if (checkSelfPermission(this, Manifest.permission.CAMERA) != PERMISSION_GRANTED) {
+            // todo: request permission dialog
+            showToast(R.string.error_no_camera_permission)
+            openAppSettings()
+            finish()
+            return
+        }
         presenter = bindPresenter()
         camera = bindCameraController()
         awaitCameraInitialization()
