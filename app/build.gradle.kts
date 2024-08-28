@@ -32,8 +32,24 @@ android {
     lint {
         warningsAsErrors = true
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
+
+    // androidx
     implementation("androidx.appcompat:appcompat:1.7.0")
+
+    // camerax
+    implementation("androidx.camera:camera-camera2:1.3.4")
+    implementation("androidx.camera:camera-view:1.3.4")
+    implementation("androidx.camera:camera-mlkit-vision:1.4.0-rc01")
+
+    // mlkit (standalone) // todo: create separate build type for devices without play services
+    // implementation("com.google.mlkit:face-detection:16.1.7")
+
+    // mlkit (depends on play services)
+    implementation("com.google.android.gms:play-services-mlkit-face-detection:17.1.0")
 }
