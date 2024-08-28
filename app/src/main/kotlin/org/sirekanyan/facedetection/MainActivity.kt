@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity(), MainPresenter.Router {
             ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
             ContextCompat.getMainExecutor(this),
         ) { analyzeResult ->
-            analyzeResult?.getValue(faceDetector)?.firstOrNull()?.boundingBox?.let { box ->
-                binding.faceBoxView.setBox(box)
+            analyzeResult?.getValue(faceDetector)?.map { it.boundingBox }?.let { boxes ->
+                binding.faceBoxView.setBoxes(boxes)
             }
         }
     }

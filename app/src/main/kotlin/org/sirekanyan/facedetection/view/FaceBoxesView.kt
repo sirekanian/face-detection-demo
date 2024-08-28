@@ -9,13 +9,13 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 
-class FaceBoxView @JvmOverloads constructor(
+class FaceBoxesView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
 ) : View(context, attrs, defStyleAttr) {
 
-    private val rect = Rect()
+    private val boxes = mutableListOf<Rect>()
     private val paint = Paint()
 
     init {
@@ -25,12 +25,15 @@ class FaceBoxView @JvmOverloads constructor(
         paint.strokeWidth = 3f
     }
 
-    fun setBox(rect: Rect) {
-        this.rect.set(rect)
+    fun setBoxes(boxes: List<Rect>) {
+        this.boxes.clear()
+        this.boxes.addAll(boxes)
         invalidate()
     }
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawRect(rect, paint)
+        boxes.forEach { box ->
+            canvas.drawRect(box, paint)
+        }
     }
 }
