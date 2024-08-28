@@ -39,7 +39,11 @@ android {
 
 dependencies {
 
+    // kotlinx
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.8.1")
+
     // androidx
+    implementation("androidx.activity:activity-ktx:1.9.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
 
     // camerax

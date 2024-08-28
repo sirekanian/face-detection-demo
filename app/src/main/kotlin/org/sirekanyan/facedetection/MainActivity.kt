@@ -2,36 +2,56 @@ package org.sirekanyan.facedetection
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
+import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.Analyzer
 import androidx.camera.mlkit.vision.MlKitAnalyzer
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle.State
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.mlkit.vision.face.FaceDetection
+import kotlinx.coroutines.guava.await
+import kotlinx.coroutines.launch
 import org.sirekanyan.facedetection.databinding.MainActivityBinding
+import org.sirekanyan.facedetection.extensions.toCameraSelector
+import org.sirekanyan.facedetection.extensions.toCameraType
+import org.sirekanyan.facedetection.model.CameraType
 import java.util.concurrent.Executors
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MainPresenter.Router {
 
     private lateinit var binding: MainActivityBinding
+    private lateinit var presenter: MainPresenter
+    private lateinit var camera: CameraController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.cameraPreviewView.controller = createCameraController()
+        presenter = bindPresenter()
+        camera = bindCameraController()
+        awaitCameraInitialization()
     }
 
-    private fun createCameraController(): CameraController {
-        val cameraController = LifecycleCameraController(baseContext)
-        cameraController.setImageAnalysisAnalyzer(
-            Executors.newSingleThreadExecutor(),
-            createFaceAnalyzer(),
-        )
-        cameraController.bindToLifecycle(this)
-        return cameraController
-    }
+    private fun bindPresenter(): MainPresenter =
+        MainPresenterImpl(this)
+            .also { lifecycle.addObserver(it) }
+            .also { it.view = MainViewImpl(binding, it) }
+
+    private fun bindCameraController(): CameraController =
+        LifecycleCameraController(baseContext)
+            .also { it.bindToLifecycle(this) }
+            .also {
+                it.setImageAnalysisAnalyzer(
+                    Executors.newSingleThreadExecutor(),
+                    createFaceAnalyzer(),
+                )
+            }
 
     private fun createFaceAnalyzer(): Analyzer {
         val faceDetector = FaceDetection.getClient()
@@ -44,5 +64,25 @@ class MainActivity : AppCompatActivity() {
                 binding.faceBoxView.setBox(box)
             }
         }
+    }
+
+    private fun awaitCameraInitialization() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(State.STARTED) {
+                camera.initializationFuture.await()
+                binding.cameraPreviewView.controller = camera
+                presenter.onCameraInitialized(
+                    currentCamera = camera.cameraSelector.toCameraType(),
+                    availableCameras = listOf(DEFAULT_BACK_CAMERA, DEFAULT_FRONT_CAMERA)
+                        .filter(camera::hasCamera)
+                        .map(CameraSelector::toCameraType)
+                        .toSet(),
+                )
+            }
+        }
+    }
+
+    override fun switchToCamera(camera: CameraType) {
+        this.camera.cameraSelector = camera.toCameraSelector()
     }
 }

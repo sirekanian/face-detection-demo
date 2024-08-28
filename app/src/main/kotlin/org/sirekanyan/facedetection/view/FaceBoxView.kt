@@ -1,4 +1,4 @@
-package org.sirekanyan.facedetection
+package org.sirekanyan.facedetection.view
 
 import android.content.Context
 import android.graphics.Canvas
